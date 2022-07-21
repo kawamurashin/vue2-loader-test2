@@ -1,43 +1,15 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
+    <BarComponent  @child-emit="childClickHandler"/>
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
 
     <v-main>
+      <DraggableComponent :tables="tables" @draggable-end="dragEndHandler" @rename-click="renameClickHandler" />
+      <div>
+        {{await_name}}<br>
+      </div>
+
+
       <HelloWorld/>
     </v-main>
   </v-app>
@@ -45,16 +17,51 @@
 
 <script>
 import HelloWorld from './components/HelloWorld';
+import BarComponent from "@/components/BarComponent.vue";
+import {ModelManager} from "@/scripts/model/modelManager.js";
+import DraggableComponent from "@/components/DraggableComponent.vue";
 
 export default {
   name: 'App',
-
   components: {
     HelloWorld,
+    BarComponent,
+    DraggableComponent,
   },
-
   data: () => ({
+    await_name:"hoge",
+    tables:[],
     //
   }),
+  mounted(){
+    const handler = () => {
+      console.log( )
+    }
+    ModelManager.getInstance().load().then(result =>{
+      this.await_name = result.data.data.name
+      this.tables = result.data.data.tables;
+    })
+    handler()
+  },
+  methods:{
+    childClickHandler(){
+      console.log("child click");
+    },
+    dragEndHandler(){
+      //console.log("dragEndHandler")
+
+    },
+    renameClickHandler(data)
+    {
+      this.tables = data.items;
+      let obj = this.tables.find(v => v.id == data.id);
+      if(obj)
+      {
+        obj.name = obj.form;
+        obj.form = "";
+      }
+
+    }
+  }
 };
 </script>
